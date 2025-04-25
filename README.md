@@ -18,30 +18,7 @@ Cuenta con una API RESTful y un frontend simple con HTML para pruebas.
 ---
 
 ## 📂 Estructura del proyecto
-Negocio/ 
-├── app.py 
-├── core/ 
-│ ├── config.py 
-│ ├── db.py 
-│ └── init_db.py 
-├── features/ 
-│ ├── users/ 
-│ │ ├── models.py 
-│ │ └── routes.py 
-│ ├── products/ 
-│ │ ├── models.py 
-│ │ └── routes.py 
-│ └── orders/ 
-│ ├── models.py 
-│ └── routes.py 
-├── templates/ 
-│ ├── base.html 
-│ ├── index.html 
-│ ├── users.html 
-│ ├── products.html 
-│ └── orders.html 
-├── .env.example 
-└── requirements.txt
+<pre>Negocio/ ├── app.py ├── core/ │ ├── config.py │ ├── db.py │ └── init_db.py ├── features/ │ ├── users/ │ │ ├── models.py │ │ └── routes.py │ ├── products/ │ │ ├── models.py │ │ └── routes.py │ └── orders/ │ ├── models.py │ └── routes.py ├── templates/ │ ├── base.html │ ├── index.html │ ├── users.html │ ├── products.html │ └── orders.html ├── .env.example └── requirements.txt<pre>
 
 
 
