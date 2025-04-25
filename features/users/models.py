@@ -8,4 +8,4 @@ class User(db.Model):
     email: str = db.Column(db.String(120), unique=True, nullable=False)
     phone: str = db.Column(db.String(20), nullable=True)
 
-    orders = db.relationship("Order", back_populates="user")
+    

@@ -4,11 +4,11 @@ from datetime import datetime
 class Order(db.Model):
     __tablename__ = "orders"
 
-    id: int = db.Column(db.Integer, primary_key=True)
-    user_id: int = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    created_at: datetime = db.Column(db.DateTime, default=datetime.utcnow)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    user = db.relationship("User", back_populates="orders")
+    user = db.relationship("User", backref="orders")  # ✅ genera user.orders
     items = db.relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
 
 class OrderItem(db.Model):
