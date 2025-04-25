@@ -1,0 +1,1 @@
+"Esta feature será reconstruida una vez que se habilite la API de WhatsApp en Meta."

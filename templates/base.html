@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Negocio{% endblock %}</title>
+    <style>
+        body { font-family: Arial; margin: 2rem; }
+        header { background: #333; padding: 1rem; color: white; margin-bottom: 2rem; }
+        nav a { color: white; margin-right: 1rem; text-decoration: none; }
+        nav a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sistema de Gestión</h1>
+        <nav>
+            <a href="/">Inicio</a> |
+            <a href="/users/web">Usuarios</a> |
+            <a href="/products/web">Productos</a> |
+            <a href="/orders/web">Órdenes</a>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
