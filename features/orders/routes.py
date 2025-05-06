@@ -3,7 +3,16 @@ from core.db import db
 from features.orders.models import Order, OrderItem
 from features.users.models import User
 from features.products.models import Product
-from typing import Any, Dict, List
+from typing import Any
+
+
+from flask import Blueprint, request, jsonify
+from .models import Order, OrderItem
+from features.products.models import Product
+from features.users.models import User
+from .schemas import OrderCreate
+from core.db import db
+
 
 orders_bp = Blueprint("orders", __name__, url_prefix="/orders")
 
@@ -37,44 +46,44 @@ def get_orders() -> Any:
 
 # Crear nueva orden (formulario o JSON)
 @orders_bp.route("/", methods=["POST"])
-def create_order() -> Any:
-    if request.form:
-        # 📦 Datos desde formulario HTML
-        user_id = request.form.get("user_id")
-        raw_items = {
-            int(key.split("[")[1][:-1]): int(val)
-            for key, val in request.form.items()
-            if key.startswith("items[") and val and int(val) > 0
-        }
-        items_data = [{"product_id": pid, "quantity": qty} for pid, qty in raw_items.items()]
-    else:
-        # 📦 Datos desde API (JSON)
-        data: Dict[str, Any] = request.get_json()
-        user_id = data.get("user_id")
-        items_data = data.get("items") or []
+def create_order():
+    try:
+        data = request.get_json()
+        validated = OrderCreate(**data)
 
-    # ⚠️ Validaciones
-    if not user_id or not items_data:
-        return jsonify({"error": "Faltan datos necesarios (user_id, items)"}), 400
+        # Verificar que el usuario exista
+        user = User.query.get(validated.user_id)
+        if not user:
+            return jsonify({"error": "Usuario no encontrado"}), 404
 
-    # 🧾 Crear orden
-    order = Order(user_id=user_id)
-    db.session.add(order)
-    db.session.flush()  # Necesario para obtener el order.id
+        # Crear la orden
+        order = Order(user_id=user.id)
+        db.session.add(order)
+        db.session.flush()  # Para obtener el order.id antes de agregar items
 
-    for item in items_data:
-        order_item = OrderItem(
-            order_id=order.id,
-            product_id=item["product_id"],
-            quantity=item.get("quantity", 1)
-        )
-        db.session.add(order_item)
+        for item_data in validated.items:
+            product = Product.query.get(item_data.product_id)
+            if not product:
+                return jsonify({"error": f"Producto ID {item_data.product_id} no encontrado"}), 404
+            
+            if product.stock < item_data.quantity:
+                return jsonify({"error": f"No hay suficiente stock para el producto '{product.name}'"}), 400
 
-    db.session.commit()
+            # Restar stock
+            product.stock -= item_data.quantity
 
-    # 🔁 Si fue desde HTML, redibujar la vista
-    if request.form:
-        return render_template("orders.html", users=User.query.all(), products=Product.query.all(), orders=Order.query.all())
+            order_item = OrderItem(
+                order_id=order.id,
+                product_id=product.id,
+                quantity=item_data.quantity,
+            )
+            db.session.add(order_item)
 
-    # ✅ Si fue API, responder JSON
-    return jsonify({"message": "Orden creada", "order_id": order.id}), 201
+        db.session.commit()
+
+        return jsonify({"message": "Orden creada exitosamente."}), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+

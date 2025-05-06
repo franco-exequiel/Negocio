@@ -1,43 +1,7 @@
-{% extends "base.html" %}
-{% block title %}Crear Orden{% endblock %}
+
 {% block content %}    
 
-    <form action="/orders/" method="POST">
-        <label for="user_id">Usuario:</label>
-        <select name="user_id" required>
-            {% for user in users %}
-                <option value="{{ user.id }}">{{ user.name }} ({{ user.email }})</option>
-            {% endfor %}
-        </select>
-
-        <h3>Productos</h3>
-        {% for product in products %}
-            <div>
-                <label>{{ product.name }} (${{ product.price }}):</label>
-                <input type="number" name="items[{{ product.id }}]" placeholder="Cantidad" min="0">
-            </div>
-        {% endfor %}
-
-        <button type="submit">Crear orden</button>
-    </form>
-
-    <hr>
-
-    <h2>Órdenes existentes</h2>
-    {% for order in orders %}
-        <div style="margin-bottom: 1rem; border: 1px solid #ccc; padding: 1rem;">
-            <strong>Orden #{{ order.id }}</strong><br>
-            Usuario: {{ order.user.name }}<br>
-            Fecha: {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}<br>
-            <ul>
-                {% for item in order.items %}
-                    <li>{{ item.product.name }} x {{ item.quantity }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% else %}
-        <p>No hay órdenes todavía.</p>
-    {% endfor %}
+    {%include "/forms/order_form.html"%}
     
     
 {% endblock %}

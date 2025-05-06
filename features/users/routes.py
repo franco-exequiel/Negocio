@@ -4,6 +4,7 @@ from flask import Blueprint, request, jsonify, render_template
 from core.db import db
 from features.users.models import User
 from typing import Any, Dict
+from .schemas import UserCreate
 
 users_bp = Blueprint("users", __name__, url_prefix="/users")
 
@@ -40,25 +41,24 @@ def get_user(user_id: int) -> Any:
 
 # Crear usuario
 @users_bp.route("/", methods=["POST"])
-def create_user() -> Any:
-    data: Dict[str, Any] = request.form if request.form else request.get_json()
+def create_user():
+    try:
+        data = request.form.to_dict()
+        validated = UserCreate(**data)
+
+        user = User(
+            name=validated.name,
+            email=validated.email,
+            phone=validated.phone,
+        )
+        db.session.add(user)
+        db.session.commit()
+
+        return jsonify({"message": "Usuario creado exitosamente."}), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
     
-    if not data or not data.get("name") or not data.get("email"):
-        return jsonify({"error": "Faltan campos obligatorios"}), 400
-
-    user = User(
-        name=data["name"],
-        email=data["email"],
-        phone=data.get("phone", "")
-    )
-    db.session.add(user)
-    db.session.commit()
-
-    if request.form:
-        return render_template("users.html", users=User.query.all())
-
-    return jsonify({"message": "Usuario creado", "id": user.id}), 201
-
 # Actualizar usuario
 @users_bp.route("/<int:user_id>", methods=["PUT"])
 def update_user(user_id: int) -> Any:
@@ -84,3 +84,7 @@ def delete_user(user_id: int) -> Any:
     db.session.delete(user)
     db.session.commit()
     return jsonify({"message": "Usuario eliminado"}), 200
+
+
+
+
